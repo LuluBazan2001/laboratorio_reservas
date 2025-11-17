@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import reserva.vehiculo.excepciones.GestorMantenimientosException;
 import reserva.vehiculo.excepciones.MantenimientoNoEncontradoException;
@@ -35,11 +36,11 @@ public class GestorMantenimientos {
         //Filtramos los mantenimientos que están abiertos
         //Mantenimiento::isAbierto devuelve true si el mantenimiento está abierto
         //toList devuelve una lista con todos los elementos de la colección
-        return mantenimientos.stream().filter(Mantenimiento::isAbierto).toList();
+        return mantenimientos.stream().filter(Mantenimiento::isAbierto).collect(Collectors.toList());
     }
 
     public List<Mantenimiento> getMantenimientosDeVehiculo(Vehiculo vehiculo) {
-        return mantenimientos.stream().filter(m -> m.getVehiculo().equals(vehiculo)).toList();
+        return mantenimientos.stream().filter(m -> m.getVehiculo().equals(vehiculo)).collect(Collectors.toList());
     }
 
     public BigDecimal calcularCostoTotalEntre(LocalDate desde, LocalDate hasta) {
@@ -55,19 +56,15 @@ public class GestorMantenimientos {
     //verifica si existe algún mantenimiento cuyo periodo (apertura..cierre) solape con el periodo consultado
     //esto considera tanto mantenimientos abiertos como cerrados y comprueba el solape correctamente
     public boolean esVehiculoNoDisponible(Vehiculo vehiculo, LocalDate desde, LocalDate hasta) {
-    return mantenimientos.stream().filter(m -> m.getVehiculo().equals(vehiculo)).anyMatch(m -> {
-            LocalDate inicioM = m.getFechaApertura();
-            LocalDate finM;
-            if (m.isCerrado()) {
-                finM = m.getFechaCierre();
-            } else {
-                // mantenimiento abierto: consideramos que bloquea hasta 'hasta'
-                finM = hasta;
-            }
-            // comprueba solapamiento entre [inicioM, finM] y [desde, hasta]
-            boolean solapan = !(finM.isBefore(desde) || inicioM.isAfter(hasta));
-            return solapan;
-        });
+    return mantenimientos.stream()
+            .filter(m -> m.getVehiculo().equals(vehiculo))
+            .anyMatch(m -> {
+                LocalDate inicioM = m.getFechaApertura();
+                LocalDate finM = m.isCerrado() ? m.getFechaCierre() : hasta;
+                // comprobamos solapamiento entre [inicioM, finM] y [desde, hasta] (inclusivo)
+                boolean solapan = !(finM.isBefore(desde) || inicioM.isAfter(hasta));
+                return solapan;
+            });
     }
 
 }

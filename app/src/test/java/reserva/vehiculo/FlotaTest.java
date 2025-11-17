@@ -12,6 +12,7 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 //import reserva.reservaVehiculo.tipoVehiculo.*;
 
+import reserva.reserva.GestorReservas;
 import reserva.vehiculo.excepciones.*;
 
 public class FlotaTest {
@@ -240,7 +241,8 @@ public class FlotaTest {
     public void disponibilidadVehiculo_incluyeMantenimiento() {
         Flota flota = new Flota();
         GestorMantenimientos gestorMantenimiento = new GestorMantenimientos();
-
+        GestorReservas gestorReservas = new GestorReservas();
+        gestorReservas.setGestorMantenimientos(gestorMantenimiento);
         Vehiculo vehic = new Vehiculo("FGT458", "Toyota", "Corolla 2020", EstadoVehiculo.Estado.DISPONIBLE, TipoVehiculo.AUTO, new BigDecimal("9000"));
         flota.altaVehiculo(vehic);
 
@@ -248,7 +250,15 @@ public class FlotaTest {
         LocalDate mantInicio = LocalDate.of(2025, 11, 10);
         LocalDate mantFin = LocalDate.of(2025, 11, 15);
 
-        gestorMantenimiento.abrirMantenimiento(vehic, mantFin,"Apertura de mantenimiento programado");
+        Mantenimiento m = gestorMantenimiento.abrirMantenimiento(vehic, mantInicio, "Apertura de mantenimiento programado");
+        gestorMantenimiento.cerrarMantenimiento(m, mantFin, "Trabajo", new BigDecimal("1000"));
+
+        boolean disponibleDentro = gestorReservas.estaDisponible(vehic, LocalDate.of(2025, 11, 12), LocalDate.of(2025, 11, 13));
+        boolean disponibleFuera = gestorReservas.estaDisponible(vehic, LocalDate.of(2025, 11, 16), LocalDate.of(2025, 11, 17));
+
+        assertFalse("El vehículo no debería estar disponible durante el mantenimiento programado", disponibleDentro);
+        assertTrue("El vehículo sí debería estar disponible fuera del periodo de mantenimiento", disponibleFuera);
+
         //consultamos disponibilidad dentro del periodo de mantenimiento
         boolean disponible = gestorMantenimiento.esVehiculoNoDisponible(vehic, mantInicio, mantFin);
 

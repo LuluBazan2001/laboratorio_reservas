@@ -49,7 +49,9 @@ public class GestorReservas {
             if (reserva.getEstado() == EstadoReserva.ACTIVA) {
                 //Verificamos si las fechas se solapan
                 //Con isBefore y isAfter comparamos si la fecha de inicio de la reserva es anterior a la fecha de inicio de la reserva, o si la fecha de fin dela reserva es posterior a la fecha de fin de la reserva
-                boolean solapan = !(fechaFin.isBefore(reserva.getFechaInicioReserva()) || fechaInicio.isAfter(reserva.getFechaFinReserva()));
+                LocalDate rInicio = reserva.getFechaInicioReserva();
+                LocalDate rFin = reserva.getFechaFinReserva();
+                boolean solapan = !(fechaFin.isBefore(rInicio) || fechaInicio.isAfter(rFin));
                 if (solapan) {
                     //Si hay solapamiento, el vehículo no está disponible
                     return false;

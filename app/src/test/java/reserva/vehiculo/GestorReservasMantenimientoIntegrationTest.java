@@ -19,9 +19,9 @@ public class GestorReservasMantenimientoIntegrationTest {
         Reserva reserva = new Reserva("abc123", vehic, cliente, LocalDate.now(), LocalDate.now().plusDays(2), modalidad);
 
         gestorReservas.registrarReserva(reserva);
-        gestorReservas.confirmarReserva("abc123");
+        gestorReservas.confirmarReserva(reserva.getCodigoReserva());
 
-        gestorReservas.finalizarReserva("abc123", true, "Revisión post-uso");
+        gestorReservas.finalizarReserva(reserva.getCodigoReserva(), true, "Revisión post-uso");
 
         //obtenemos el gestor de mantenimientos
         GestorMantenimientos gm = gestorReservas.getGestorMantenimientos();

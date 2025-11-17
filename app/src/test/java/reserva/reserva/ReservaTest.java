@@ -193,14 +193,17 @@ public class ReservaTest {
     //Creamos dos reservas sobre mismo vehículo y fechas solapadas; intentamos confirmar la segunda reserva y nos arroja la exception ReservaSolapadaException
     @Test(expected = ReservaSolapadaException.class)
     public void reservaSolapada_noPermiteConfirmar() {
+        GestorMantenimientos gm = new GestorMantenimientos();
         GestorReservas gestor = new GestorReservas();
+        gestor.setGestorMantenimientos(gm);
+
         Vehiculo vehiculo = new Vehiculo("abc123", "Ford", "Focus", EstadoVehiculo.Estado.DISPONIBLE, TipoVehiculo.AUTO, new BigDecimal("7000"));
         ClienteParticular cliente = new ClienteParticular("Juan Gomez", "Calle 123", "381111111", "juan@gmail.com", "40111222");
         ClienteParticular cliente2 = new ClienteParticular("Juan Gomez", "Calle 123", "381111111", "XXXXXXXXXXXXXX", "40111223");
 
         LocalDate inicio1 = LocalDate.of(2025, 12, 1);
         LocalDate fin1 = LocalDate.of(2025, 12, 5);
-        LocalDate inicio2 = LocalDate.of(2025, 12, 4); // solapa con la reserva1
+        LocalDate inicio2 = LocalDate.of(2025, 12, 4); //solapa con la reserva1
         LocalDate fin2 = LocalDate.of(2025, 12, 8);
 
         PorDia modalidad = new PorDia();
@@ -208,11 +211,11 @@ public class ReservaTest {
         Reserva reserva2 = new Reserva("R2", vehiculo, cliente2, inicio2, fin2, modalidad);
 
         gestor.registrarReserva(reserva);
-        gestor.confirmarReserva("R1"); //confirma la primera
+        gestor.confirmarReserva(reserva.getCodigoReserva()); //confirma la primera
 
         gestor.registrarReserva(reserva2);
         //Al intentar confirmar la segunda debe lanzar ReservaSolapadaException
-        gestor.confirmarReserva("R2");
+        gestor.confirmarReserva(reserva2.getCodigoReserva());
     }
 
 }

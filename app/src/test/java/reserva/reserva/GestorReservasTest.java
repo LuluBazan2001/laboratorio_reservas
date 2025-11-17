@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import reserva.cliente.Cliente;
 import reserva.cliente.ClienteParticular;
@@ -41,17 +42,31 @@ public class GestorReservasTest {
         assertEquals(EstadoReserva.PENDIENTE, reserva.getEstado());
     }
 
-    @Test (expected = ReservaSolapadaException.class)
-    public void testRegistrarReservaSolapada_LanzaException() {
+    @Test
+    public void testRegistrarReservaSolapada_NoLanzaExceptionPeroConfirmarSi() {
+        GestorMantenimientos gm = new GestorMantenimientos();
         GestorReservas gestorReservas = new GestorReservas();
+        gestorReservas.setGestorMantenimientos(gm);
         Vehiculo vehic = new Vehiculo("FGT458", "Toyota", "Corolla 2020", EstadoVehiculo.Estado.DISPONIBLE, TipoVehiculo.AUTO, new BigDecimal("9000"));
         Cliente cliente = new ClienteParticular("Juan", "Cordoba 333", "3834934912", "juan@gmail.com", "43224512");
         ModalidadAlquiler modalidad = new PorDia();
         Reserva reserva = new Reserva("1234", vehic, cliente, LocalDate.now(), LocalDate.now(), modalidad);
         Reserva reservaSolapada = new Reserva("1235", vehic, cliente, LocalDate.now(), LocalDate.now(), modalidad);
 
+        //Al quedar en PENDIENTE, el mantenimiento no debe generar excepciones
         gestorReservas.registrarReserva(reserva);
-        gestorReservas.registrarReserva(reservaSolapada); //Deberia lanzar una excepcion, por que ya existe una reserva para el mismo vehiculo.
+        gestorReservas.registrarReserva(reservaSolapada);
+
+        //ahora confirmo la primera: debe pasar
+        gestorReservas.confirmarReserva(reserva.getCodigoReserva());
+
+        //intentamos confirmar la segunda (que solapa) debe lanzar ReservaSolapadaException
+        try {
+            gestorReservas.confirmarReserva(reservaSolapada.getCodigoReserva());
+            fail("Se esperaba ReservaSolapadaException al confirmar la reserva solapada");
+        } catch (ReservaSolapadaException ex) {
+            //ok - comportamiento esperado
+        }
     }
 
     /*************************************************************************************************** */
@@ -217,7 +232,10 @@ public void testFinalizarReserva_NoExiste() {
 
     @Test
     public void testDisponibilidadVehiculo_ConSolape() {
+        GestorMantenimientos gm = new GestorMantenimientos();
         GestorReservas gestorReservas = new GestorReservas();
+        gestorReservas.setGestorMantenimientos(gm);
+
         Vehiculo vehic = new Vehiculo("FGT458", "Toyota", "Corolla 2020", EstadoVehiculo.Estado.DISPONIBLE, TipoVehiculo.AUTO, new BigDecimal("9000"));
         Cliente cliente = new ClienteParticular("Juan", "Cordoba 333", "3834934912", "juan@gmail.com", "43224512");
         ModalidadAlquiler modalidad = new PorDia();
@@ -225,6 +243,7 @@ public void testFinalizarReserva_NoExiste() {
         Reserva reserva = new Reserva("1234", vehic, cliente, LocalDate.of(2025,10,1), LocalDate.of(2025,10,5), modalidad);
 
         gestorReservas.registrarReserva(reserva);
+        gestorReservas.confirmarReserva(reserva.getCodigoReserva());
 
         boolean disponible = gestorReservas.estaDisponible(vehic, LocalDate.of(2025,10,3), LocalDate.of(2025,10,4));
 
@@ -251,7 +270,7 @@ public void testFinalizarReserva_NoExiste() {
         boolean disponibleDentro = gestorReservas.estaDisponible(vehic, LocalDate.of(2025, 11, 12), LocalDate.of(2025, 11, 13));
         boolean disponibleFuera = gestorReservas.estaDisponible(vehic, LocalDate.of(2025, 11, 16), LocalDate.of(2025, 11, 17));
 
-        
+
         assertFalse("El vehículo no debería estar disponible durante el mantenimiento programado", disponibleDentro);
         assertTrue("El vehículo sí debería estar disponible fuera del periodo de mantenimiento", disponibleFuera);
     }
