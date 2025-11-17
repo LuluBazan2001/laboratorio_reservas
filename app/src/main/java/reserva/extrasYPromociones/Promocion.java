@@ -19,6 +19,9 @@ public class Promocion {
 
     public Promocion(String nombre, BigDecimal porcentajeDescuento, boolean combinable,
                      boolean aplicaVehiculoElectrico, boolean aplicaClienteEmpresarial, String descripcion) {
+        if (porcentajeDescuento == null || porcentajeDescuento.compareTo(BigDecimal.ZERO) < 0 || porcentajeDescuento.compareTo(BigDecimal.ONE) > 0) {
+        throw new IllegalArgumentException("porcentajeDescuento debe ser decimal entre 0 y 1 (0.10 = 10%)");
+        }
         this.nombre = nombre;
         this.porcentajeDescuento = porcentajeDescuento;
         this.combinable = combinable;

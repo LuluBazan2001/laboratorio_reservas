@@ -108,6 +108,23 @@ public class Reserva {
     public LocalDate getFechaInicioReserva() { return fechaInicioReserva; }
     public LocalDate getFechaFinReserva() { return fechaFinReserva; }
     public EstadoReserva getEstado() { return estado; }
+    
+    public BigDecimal getCostoBase() {
+        return modalidad.calcularCosto(vehiculo, fechaInicioReserva, fechaFinReserva);
+    }
+
+    public BigDecimal getCostoExtras() {
+        BigDecimal costoExtras = BigDecimal.ZERO;
+        for (ServicioExtra e : serviciosExtra) {
+            costoExtras = costoExtras.add(e.getCostoServicio());
+        }
+        return costoExtras;
+    }
+    
+    public List<Promocion> getPromocionesAplicadas() {
+        return Collections.unmodifiableList(this.promociones);
+    }
+
 
 
     /******************************************** */

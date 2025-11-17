@@ -24,7 +24,7 @@ public class PromocionTest {
         Vehiculo vehiculoElectrico = new Vehiculo("TES-001", "Ford", "Focus", EstadoVehiculo.Estado.DISPONIBLE, tipo, new BigDecimal("9000"));
         Vehiculo vehiculoNoElectrico = new Vehiculo("TES-002", "Ford", "Focus", EstadoVehiculo.Estado.DISPONIBLE, TipoVehiculo.AUTO, new BigDecimal("9000"));
 
-        Promocion promoSoloElectricos = new Promocion("ELECTRO", new BigDecimal("30.0"), true, true, true, "La promocion incluye un descuento de 30%");
+        Promocion promoSoloElectricos = new Promocion("ELECTRO", new BigDecimal("0.30"), true, true, true, "La promocion incluye un descuento de 30%");
         Cliente cliente = new ClienteEmpresarial("Empresa Tech", "Calle 123", "3834234516", "empresaTech@gmail.com", "23-11234567-1", "Empresa Tech");
 
 

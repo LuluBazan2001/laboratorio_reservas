@@ -18,7 +18,7 @@ public class GestorPromocionesTest {
     @Test
     public void agregarPromocion_exitoso() {
         GestorPromociones gestor = new GestorPromociones();
-        Promocion promo = new Promocion("Promocion 1", new BigDecimal(10.0), true, false, false, "La promocion incluye un descuento de 10%");
+        Promocion promo = new Promocion("Promocion 1", new BigDecimal(0.10), true, false, false, "La promocion incluye un descuento de 10%");
 
         gestor.agregarPromocion(promo);
 
@@ -31,8 +31,8 @@ public class GestorPromocionesTest {
     @Test(expected = PromocionExistenteException.class)
     public void agregarPromocion_existente_lanzaExcepcion() {
         GestorPromociones gestor = new GestorPromociones();
-        Promocion promo = new Promocion("Promocion 1", new BigDecimal(10.0), true, false, false, "La promocion incluye un descuento de 10%");
-        Promocion promoDuplicada = new Promocion("Promocion 1", new BigDecimal(10.0), true, false, false, "La promocion incluye un descuento de 10%");
+        Promocion promo = new Promocion("Promocion 1", new BigDecimal(0.10), true, false, false, "La promocion incluye un descuento de 10%");
+        Promocion promoDuplicada = new Promocion("Promocion 1", new BigDecimal(0.10), true, false, false, "La promocion incluye un descuento de 10%");
 
         gestor.agregarPromocion(promo);
         //Intento agregar otra con el mismo nombre -> debe lanzar excepción
@@ -46,24 +46,24 @@ public class GestorPromocionesTest {
     @Test
     public void modificarPromocion_exitoso() {
         GestorPromociones gestor = new GestorPromociones();
-        Promocion promo = new Promocion("Promocion 1", new BigDecimal(10.0), true, false, false, "La promocion incluye un descuento de 10%");
+        Promocion promo = new Promocion("Promocion 1", new BigDecimal(0.10), true, false, false, "La promocion incluye un descuento de 10%");
 
         gestor.agregarPromocion(promo);
 
         //creamos una promoción con los cambios y usamos el método modificar
-        Promocion promoModificada = new Promocion("Promocion 1", new BigDecimal(15.0), true, false, false, "La promocion incluye un descuento de 15%");
+        Promocion promoModificada = new Promocion("Promocion 1", new BigDecimal(0.10), true, true, true, "La promocion incluye un descuento de 10%");
 
         gestor.modificarPromocion(promoModificada);
 
         Optional<Promocion> encontrada = gestor.buscarPorNombre("Promocion 1");
         assertTrue(encontrada.isPresent());
-        assertEquals(new BigDecimal("15"), encontrada.get().getPorcentajeDescuento());
+        assertEquals(new BigDecimal(0.10), encontrada.get().getPorcentajeDescuento());
     }
 
     @Test(expected = PromocionNoExistenteException.class)
     public void modificarPromocion_noExiste_lanzaExcepcion() {
         GestorPromociones gestor = new GestorPromociones();
-        Promocion promoModificada = new Promocion("Promocion 1", new BigDecimal(15.0), true, false, false, "La promocion incluye un descuento de 15%");
+        Promocion promoModificada = new Promocion("Promocion 1", new BigDecimal(0.15), true, false, false, "La promocion incluye un descuento de 15%");
 
         gestor.modificarPromocion(promoModificada);
     }
@@ -74,7 +74,7 @@ public class GestorPromocionesTest {
     @Test
     public void eliminarPromocion_exitoso() {
         GestorPromociones gestor = new GestorPromociones();
-        Promocion promo = new Promocion("Promocion 1", new BigDecimal(10.0), true, false, false, "La promocion incluye un descuento de 10%");
+        Promocion promo = new Promocion("Promocion 1", new BigDecimal(0.10), true, false, false, "La promocion incluye un descuento de 10%");
 
         gestor.agregarPromocion(promo);
         gestor.eliminarPromocion(promo);
@@ -85,7 +85,7 @@ public class GestorPromocionesTest {
     @Test(expected = PromocionNoExistenteException.class)
     public void eliminarPromocion_noExiste_lanzaExcepcion() {
         GestorPromociones gestor = new GestorPromociones();
-        Promocion promo = new Promocion("Promocion 1", new BigDecimal(10.0), true, false, false, "La promocion incluye un descuento de 10%");
+        Promocion promo = new Promocion("Promocion 1", new BigDecimal(0.10), true, false, false, "La promocion incluye un descuento de 10%");
 
         gestor.eliminarPromocion(promo);
     }
@@ -96,8 +96,8 @@ public class GestorPromocionesTest {
     @Test
     public void listarPromociones_exitoso() {
         GestorPromociones gestor = new GestorPromociones();
-        Promocion promo = new Promocion("Promocion 1", new BigDecimal(10.0), true, false, false, "La promocion incluye un descuento de 10%");
-        Promocion promo2 = new Promocion("Promocion 2", new BigDecimal(15.0), true, false, false, "La promocion incluye un descuento de 15%");
+        Promocion promo = new Promocion("Promocion 1", new BigDecimal(0.10), true, false, false, "La promocion incluye un descuento de 10%");
+        Promocion promo2 = new Promocion("Promocion 2", new BigDecimal(0.15), true, false, false, "La promocion incluye un descuento de 15%");
         gestor.agregarPromocion(promo);
         gestor.agregarPromocion(promo2);
 
