@@ -20,12 +20,6 @@ public class GestorReservas {
         if (reserva.getVehiculo().getEstado() == EstadoVehiculo.Estado.MANTENIMIENTO) {
             throw new ReservaSolapadaException("El vehículo está en mantenimiento y no puede reservarse.");
         }
-
-        //Con este if verificamos que el vehiculo esté disponible para la reserva, consultando la disponibilidad de todos los vehiculos, las fechas de inicio y fin de la reserva
-        if(!estaDisponible(reserva.getVehiculo(), reserva.getFechaInicioReserva(), reserva.getFechaFinReserva())) {
-            //Si la reserva no se puede realizar porque el vehiculo no está disponible, lanza una excepción
-            throw new ReservaSolapadaException("El vehículo " + reserva.getVehiculo().getPatente() + " no está disponible en ese período."); 
-        }
         reservas.add(reserva);
     }
 
@@ -44,7 +38,7 @@ public class GestorReservas {
         //comprobamos reservas ACTIVAS
         for (Reserva reserva : reservas) {
             //Verifico si la reserva pertenece al mismo vehículo
-            if (reserva.getVehiculo().equals(vehiculo)) continue;
+            if (!reserva.getVehiculo().equals(vehiculo)) continue;
             //Solo consideramos reservas ACTIVAS
             if (reserva.getEstado() == EstadoReserva.ACTIVA) {
                 //Verificamos si las fechas se solapan

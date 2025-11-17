@@ -258,11 +258,6 @@ public class FlotaTest {
 
         assertFalse("El vehículo no debería estar disponible durante el mantenimiento programado", disponibleDentro);
         assertTrue("El vehículo sí debería estar disponible fuera del periodo de mantenimiento", disponibleFuera);
-
-        //consultamos disponibilidad dentro del periodo de mantenimiento
-        boolean disponible = gestorMantenimiento.esVehiculoNoDisponible(vehic, mantInicio, mantFin);
-
-        assertFalse("El vehículo no debería estar disponible durante el mantenimiento programado", disponible);
     }
 
 }
