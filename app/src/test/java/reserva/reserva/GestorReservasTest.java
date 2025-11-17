@@ -18,6 +18,8 @@ import reserva.reserva.excepciones.FinalizarReservasException;
 import reserva.reserva.excepciones.ReservaNoEncontradaException;
 import reserva.reserva.excepciones.ReservaSolapadaException;
 import reserva.vehiculo.EstadoVehiculo;
+import reserva.vehiculo.GestorMantenimientos;
+import reserva.vehiculo.Mantenimiento;
 import reserva.vehiculo.TipoVehiculo;
 import reserva.vehiculo.Vehiculo;
 
@@ -227,7 +229,32 @@ public void testFinalizarReserva_NoExiste() {
         boolean disponible = gestorReservas.estaDisponible(vehic, LocalDate.of(2025,10,3), LocalDate.of(2025,10,4));
 
         assertFalse("El vehiculo no deberia estar disponible dentro del rango reservado", disponible);
-    }//NO DEBERIA GENERAR UNA EXCEPCION?
+    }
+    @Test
+    public void disponibilidadVehiculo_incluyeMantenimiento() {
+        GestorMantenimientos gestorMantenimiento = new GestorMantenimientos();
+        GestorReservas gestorReservas = new GestorReservas();
+        gestorReservas.setGestorMantenimientos(gestorMantenimiento);
+
+        Vehiculo vehic = new Vehiculo("FGT458", "Toyota", "Corolla 2020", EstadoVehiculo.Estado.DISPONIBLE, TipoVehiculo.AUTO, new BigDecimal("9000"));
+
+        //Abrimos un mantenimiento que bloquea el periodo 2025-11-10 .. 2025-11-15
+        LocalDate mantInicio = LocalDate.of(2025, 11, 10);
+        LocalDate mantFin = LocalDate.of(2025, 11, 15);
+
+        //Abrir un mantenimiento implica usar el metodo abrirMantenimiento (que bloquea vehículo y lo pone en MANTENIMIENTO)
+        Mantenimiento mant = gestorMantenimiento.abrirMantenimiento(vehic, mantInicio, "Revisión programada");
+        //Cerramos el mantenimiento en la fecha mantFin para simular periodo cerrado
+        gestorMantenimiento.cerrarMantenimiento(mant, mantFin, "Trabajo realizado", new BigDecimal("1000"));
+
+        //Cconsulta disponibilidad dentro del periodo de mantenimiento, para el vehiculo declarado
+        boolean disponibleDentro = gestorReservas.estaDisponible(vehic, LocalDate.of(2025, 11, 12), LocalDate.of(2025, 11, 13));
+        boolean disponibleFuera = gestorReservas.estaDisponible(vehic, LocalDate.of(2025, 11, 16), LocalDate.of(2025, 11, 17));
+
+        
+        assertFalse("El vehículo no debería estar disponible durante el mantenimiento programado", disponibleDentro);
+        assertTrue("El vehículo sí debería estar disponible fuera del periodo de mantenimiento", disponibleFuera);
+    }
 
     /*************************************************************************************************** */
     /*                     TEST BUSCAR / RESERVA NO ENCONTRADA                                           */

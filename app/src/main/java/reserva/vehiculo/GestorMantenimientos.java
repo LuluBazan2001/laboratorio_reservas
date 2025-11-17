@@ -52,12 +52,23 @@ public class GestorMantenimientos {
     }
 
     //Este metodo nos permite consultar si un vehículo con mantenimiento programado NO figura como disponible en ese periodo
+    //verifica si existe algún mantenimiento cuyo periodo (apertura..cierre) solape con el periodo consultado
+    //esto considera tanto mantenimientos abiertos como cerrados y comprueba el solape correctamente
     public boolean esVehiculoNoDisponible(Vehiculo vehiculo, LocalDate desde, LocalDate hasta) {
-        return mantenimientos.stream()
-                .filter(m -> m.isCerrado()
-                        && !m.getFechaCierre().isBefore(desde)
-                        && !m.getFechaCierre().isAfter(hasta))
-                .anyMatch(m -> m.getVehiculo().equals(vehiculo));
+    return mantenimientos.stream().filter(m -> m.getVehiculo().equals(vehiculo)).anyMatch(m -> {
+            LocalDate inicioM = m.getFechaApertura();
+            LocalDate finM;
+            if (m.isCerrado()) {
+                finM = m.getFechaCierre();
+            } else {
+                // mantenimiento abierto: consideramos que bloquea hasta 'hasta'
+                finM = hasta;
+            }
+            // comprueba solapamiento entre [inicioM, finM] y [desde, hasta]
+            boolean solapan = !(finM.isBefore(desde) || inicioM.isAfter(hasta));
+            return solapan;
+        });
     }
+
 }
 

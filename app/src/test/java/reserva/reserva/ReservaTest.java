@@ -12,6 +12,7 @@ import reserva.reserva.excepciones.*;
 import static org.junit.Assert.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public class ReservaTest {
 
@@ -96,14 +97,15 @@ public class ReservaTest {
         ModalidadAlquiler modalidad = new PorDia();
         Reserva reserva = new Reserva("R006", vehic, cliente, LocalDate.now(), LocalDate.now().plusDays(2), modalidad);
 
-        // No se confirma antes
-        reserva.finalizarReserva(); // Debe lanzar FinalizarReservasException
+        //No se confirma antes
+        reserva.finalizarReserva(); //Debe lanzar FinalizarReservasException
     }
 
     @Test
     public void finalizarReserva_generaMantenimiento_siCumplePolitica() {
-        // Arrange
+        GestorMantenimientos gestorMantenimiento = new GestorMantenimientos();
         GestorReservas gestorReservas = new GestorReservas();
+        gestorReservas.setGestorMantenimientos(gestorMantenimiento);
 
         Vehiculo vehic = new Vehiculo("PQR987", "Honda", "Civic", EstadoVehiculo.Estado.DISPONIBLE, TipoVehiculo.AUTO, new BigDecimal("9000"));
         Cliente cliente = new ClienteParticular("María", "Buenos Aires 100", "381555555", "maria@gmail.com", "41111000");
@@ -117,6 +119,20 @@ public class ReservaTest {
 
         //finalizar reserva (esto debería disparar la política que genera mantenimiento)
         gestorReservas.finalizarReserva(reserva.getCodigoReserva(), true, "Chequeo general post uso");
+
+
+
+        // Comprobamos que el vehículo se ha abierto un mantenimiento
+        // o al menos debe existir un registro de mantenimiento para el vehículo
+        List<Mantenimiento> mantenimientos = gestorMantenimiento.getMantenimientosDeVehiculo(vehic);
+        assertNotNull(mantenimientos);
+        assertTrue("Debe haberse generado al menos un registro de mantenimiento tras finalizar la reserva (según política)", mantenimientos.size() >= 1);
+
+        //comprobamos que el mantenimiento se ha abierto
+        assertEquals("El vehículo debería estar en MANTENIMIENTO si se generó mantenimiento", EstadoVehiculo.Estado.MANTENIMIENTO, vehic.getEstado());
+
+
+
 
         //el vehículo pasó a estado MANTENIMIENTO
         assertEquals("El vehículo debería haber quedado en estado MANTENIMIENTO", EstadoVehiculo.Estado.MANTENIMIENTO, vehic.getEstado());

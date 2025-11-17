@@ -74,6 +74,8 @@ public class Reserva {
         vehiculo.setEstado(EstadoVehiculo.Estado.DISPONIBLE);
     }
 
+    
+
     /******************************************** */
     /*    AGREGAR PROMOCIONES Y SERVICIOS EXTRA   */
     /******************************************** */
